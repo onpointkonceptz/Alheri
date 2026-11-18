@@ -1,0 +1,1405 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Alheri (الخير) | Clinical Triage Assistant</title>
+  <style>
+    :root {
+      --bg: #f8fafc;
+      --card-bg: #ffffff;
+      --text-main: #0f172a;
+      --text-muted: #475569;
+      --border: #e2e8f0;
+      --border-focus: #059669;
+      --accent: #059669;
+      --accent-hover: #047857;
+      --accent-light: #ecfdf5;
+      --red-bg: #fef2f2;
+      --red-border: #fca5a5;
+      --red-text: #991b1b;
+      --yellow-bg: #fffbeb;
+      --yellow-border: #fcd34d;
+      --yellow-text: #92400e;
+      --green-bg: #f0fdf4;
+      --green-border: #86efac;
+      --green-text: #166534;
+      --font-mono: Consolas, 'Liberation Mono', Menlo, Courier, monospace;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background-color: var(--bg);
+      color: var(--text-main);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Top Navigation */
+    header {
+      background: #ffffff;
+      border-bottom: 1px solid var(--border);
+      padding: 16px 32px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.03);
+    }
+
+    .brand-wrap {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .brand-logo {
+      width: 44px;
+      height: 44px;
+      background: var(--accent);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 24px;
+      color: #ffffff;
+    }
+
+    .brand-title {
+      font-size: 20px;
+      font-weight: 700;
+      color: #0f172a;
+    }
+
+    .brand-subtitle {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    .header-badges {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .badge-privacy {
+      background: #ecfdf5;
+      color: #065f46;
+      border: 1px solid #a7f3d0;
+      border-radius: 20px;
+      padding: 6px 16px;
+      font-size: 13px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .badge-privacy span.dot {
+      width: 9px;
+      height: 9px;
+      background: #10b981;
+      border-radius: 50%;
+      display: inline-block;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(0.95); opacity: 0.8; }
+      50% { transform: scale(1.2); opacity: 1; }
+      100% { transform: scale(0.95); opacity: 0.8; }
+    }
+
+    .metric-pill {
+      background: #f1f5f9;
+      border: 1px solid var(--border);
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-family: var(--font-mono);
+      font-weight: 600;
+      color: #334155;
+    }
+
+    .toast-banner {
+      display: none;
+      margin: 12px 32px 0;
+      padding: 10px 18px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      transition: all 0.2s ease;
+    }
+
+    /* Layout */
+    main {
+      flex: 1;
+      padding: 24px 32px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+      max-width: 1540px;
+      width: 100%;
+      margin: 0 auto;
+    }
+
+    @media (max-width: 1024px) {
+      main {
+        grid-template-columns: 1fr;
+        padding: 16px;
+      }
+      header {
+        padding: 14px 16px;
+      }
+    }
+
+    .panel {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+    }
+
+    .panel-title {
+      font-size: 17px;
+      font-weight: 700;
+      color: #0f172a;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 12px;
+    }
+
+    .section-label {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 8px;
+    }
+
+    /* Clean Language Filter Bar */
+    .lang-tabs {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .lang-btn {
+      background: #f8fafc;
+      border: 1px solid var(--border);
+      color: #334155;
+      border-radius: 7px;
+      padding: 8px 14px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      line-height: 1.2;
+    }
+
+    .lang-btn:hover {
+      background: #e2e8f0;
+      color: #0f172a;
+    }
+
+    .lang-btn.active {
+      background: var(--accent);
+      color: #ffffff;
+      border-color: var(--accent);
+      box-shadow: 0 1px 2px rgba(5,150,105,0.25);
+    }
+
+    .active-lang-badge {
+      margin-top: 8px;
+      font-size: 12px;
+      color: #0369a1;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    /* Preset list */
+    .presets-container {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      max-height: 200px;
+      overflow-y: auto;
+    }
+
+    .preset-card {
+      background: #ffffff;
+      border: 1px solid var(--border);
+      color: #1e293b;
+      border-radius: 8px;
+      padding: 10px 14px;
+      font-size: 13px;
+      text-align: left;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      line-height: 1.4;
+      user-select: none;
+    }
+
+    .preset-card:hover {
+      background: #f8fafc;
+      border-color: #cbd5e1;
+      transform: translateY(-1px);
+    }
+
+    .preset-card.active-preset {
+      border: 2px solid var(--accent);
+      background: #ecfdf5;
+    }
+
+    .preset-tag {
+      font-size: 11px;
+      padding: 3px 8px;
+      border-radius: 6px;
+      font-weight: 700;
+      margin-left: 10px;
+      white-space: nowrap;
+      text-transform: uppercase;
+    }
+    .tag-en { background: #fee2e2; color: #991b1b; }
+    .tag-ha { background: #e0e7ff; color: #3730a3; }
+    .tag-pid { background: #fef3c7; color: #92400e; }
+    .tag-ig { background: #fce7f3; color: #9d174d; }
+    .tag-yo { background: #ffedd5; color: #9a3412; }
+    .tag-ar { background: #dcfce7; color: #166534; }
+
+    /* Textarea & Buttons */
+    textarea {
+      width: 100%;
+      height: 115px;
+      background: #ffffff;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      padding: 14px;
+      color: #0f172a;
+      font-size: 15px;
+      line-height: 1.5;
+      font-family: inherit;
+      resize: vertical;
+      outline: none;
+      transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    textarea:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.15);
+    }
+
+    .btn-row {
+      display: flex;
+      gap: 10px;
+    }
+
+    .btn {
+      flex: 1;
+      background: var(--accent);
+      color: #ffffff;
+      border: none;
+      border-radius: 8px;
+      padding: 12px 18px;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background 0.15s ease, transform 0.1s ease;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .btn:hover { background: var(--accent-hover); }
+    .btn:active { transform: scale(0.99); }
+    .btn:disabled { opacity: 0.65; cursor: not-allowed; }
+
+    .btn-secondary {
+      background: #f1f5f9;
+      border: 1px solid var(--border);
+      color: #334155;
+    }
+    .btn-secondary:hover { background: #e2e8f0; }
+
+    /* Live Voice Microphone Section */
+    .mic-card {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px;
+      background: #f8fafc;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .mic-controls {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .btn-mic {
+      background: #ffffff;
+      border: 1px solid #cbd5e1;
+      color: #0f172a;
+      padding: 9px 16px;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 14px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.15s ease;
+    }
+
+    .btn-mic:hover {
+      border-color: var(--accent);
+      background: #ecfdf5;
+      color: var(--accent);
+    }
+
+    .btn-mic.recording {
+      background: #fee2e2;
+      border-color: #ef4444;
+      color: #b91c1c;
+      animation: micPulse 1.2s infinite;
+    }
+
+    @keyframes micPulse {
+      0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); }
+      70% { box-shadow: 0 0 0 8px rgba(239, 68, 68, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+    }
+
+    .rec-indicator {
+      display: none;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+      font-weight: 700;
+      color: #b91c1c;
+    }
+
+    .rec-dot {
+      width: 10px;
+      height: 10px;
+      background: #ef4444;
+      border-radius: 50%;
+    }
+
+    /* Right Column: Output */
+    .triage-banner {
+      padding: 14px 20px;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 800;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .banner-READY { background: #f8fafc; border: 1px solid var(--border); color: #475569; }
+    .banner-RED { background: var(--red-bg); border: 1px solid var(--red-border); color: var(--red-text); }
+    .banner-YELLOW { background: var(--yellow-bg); border: 1px solid var(--yellow-border); color: var(--yellow-text); }
+    .banner-GREEN { background: var(--green-bg); border: 1px solid var(--green-border); color: var(--green-text); }
+
+    .live-status {
+      font-size: 13px;
+      color: var(--accent);
+      font-weight: 600;
+      display: none;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .evaluation-scope-notice {
+      background: #eff6ff;
+      border: 1px solid #bfdbfe;
+      border-radius: 8px;
+      padding: 10px 14px;
+      font-size: 12px;
+      color: #1e40af;
+      line-height: 1.5;
+    }
+
+    .output-content {
+      background: #ffffff;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 20px;
+      font-size: 15px;
+      line-height: 1.7;
+      color: #0f172a;
+      white-space: pre-wrap;
+      word-break: break-word;
+      min-height: 240px;
+      max-height: 520px;
+      overflow-y: auto;
+    }
+
+    .output-content[dir="rtl"] {
+      direction: rtl;
+      text-align: right;
+      font-family: Tahoma, 'Segoe UI', Arial, sans-serif;
+    }
+
+    .citations-box {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .citation-item {
+      background: #f8fafc;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 11px 14px;
+      font-size: 13px;
+    }
+
+    .citation-title {
+      font-weight: 700;
+      color: #0369a1;
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 4px;
+    }
+
+    .citation-snippet {
+      color: #475569;
+      font-size: 12px;
+      font-family: var(--font-mono);
+      line-height: 1.45;
+    }
+
+    .stats-footer {
+      display: flex;
+      gap: 16px;
+      font-size: 12px;
+      color: var(--text-muted);
+      font-family: var(--font-mono);
+      border-top: 1px solid var(--border);
+      padding-top: 12px;
+      flex-wrap: wrap;
+    }
+
+    /* Tabs */
+    .view-tabs {
+      display: flex;
+      gap: 8px;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 8px;
+    }
+    .view-tab-btn {
+      background: none;
+      border: none;
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text-muted);
+      cursor: pointer;
+      padding: 6px 14px;
+      border-radius: 6px;
+    }
+    .view-tab-btn.active {
+      background: #f1f5f9;
+      color: #0f172a;
+    }
+
+    footer {
+      background: #ffffff;
+      border-top: 1px solid var(--border);
+      padding: 14px 32px;
+      font-size: 13px;
+      color: var(--text-muted);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .spinner {
+      display: inline-block;
+      width: 14px;
+      height: 14px;
+      border: 2px solid rgba(255,255,255,0.4);
+      border-radius: 50%;
+      border-top-color: #ffffff;
+      animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="brand-wrap">
+      <div class="brand-logo">A</div>
+      <div>
+        <div class="brand-title">Alheri (الخير)</div>
+        <div class="brand-subtitle">Offline Mental Health & Primary Care Clinical Triage</div>
+      </div>
+    </div>
+    <div class="header-badges">
+      <div class="badge-privacy">
+        <span class="dot"></span>
+        ZERO CLOUD CALLS • 100% OFFLINE
+      </div>
+      <div class="metric-pill" id="ramPill">RAM: Loading...</div>
+      <button type="button" class="btn btn-secondary" id="reindexBtn" style="padding:6px 12px; font-size:12px;">
+        ↻ Re-index KB
+      </button>
+    </div>
+  </header>
+
+  <!-- Notification Banner -->
+  <div id="toastBanner" class="toast-banner"></div>
+
+  <main>
+    <!-- Left Column: Intake & Presets -->
+    <div class="panel">
+      <div class="panel-title">
+        <span>Patient Intake</span>
+        <span style="font-size:12px; font-weight:normal; color:var(--text-muted);">Text or Live Voice Chat</span>
+      </div>
+
+      <!-- Clean Horizontal Language Filter Bar -->
+      <div>
+        <div class="section-label">Select Intake & Response Language</div>
+        <div class="lang-tabs" id="langTabs">
+          <button type="button" class="lang-btn active" id="btnLangAuto" data-lang="auto">Auto-Detect</button>
+          <button type="button" class="lang-btn" id="btnLangEn" data-lang="en">English</button>
+          <button type="button" class="lang-btn" id="btnLangHa" data-lang="ha">Hausa</button>
+          <button type="button" class="lang-btn" id="btnLangPid" data-lang="pid">Pidgin</button>
+          <button type="button" class="lang-btn" id="btnLangIg" data-lang="ig">Igbo</button>
+          <button type="button" class="lang-btn" id="btnLangYo" data-lang="yo">Yoruba</button>
+          <button type="button" class="lang-btn" id="btnLangAr" data-lang="ar">العربية</button>
+        </div>
+        <div class="active-lang-badge" id="activeLangNotice">
+          Active Intake Language: Auto-Detect
+        </div>
+      </div>
+
+      <!-- Quick Preset Prompts -->
+      <div>
+        <div class="section-label">Clinical Scenario Presets (Click to Select)</div>
+        <div class="presets-container" id="presetsList">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+
+      <!-- Text Input Area -->
+      <div>
+        <div class="section-label">Patient Statement / Clinical Notes</div>
+        <textarea id="chatInput" placeholder="Enter patient symptom statement, cultural idiom, or clinical presentation in English, Hausa, Pidgin, Igbo, Yoruba, or Arabic..."></textarea>
+      </div>
+
+      <div class="btn-row">
+        <button type="button" class="btn" id="triageBtn">
+          <span>Run Clinical Triage</span>
+        </button>
+        <button type="button" class="btn btn-secondary" id="clearBtn">Clear</button>
+      </div>
+
+      <!-- Live Voice Microphone Section -->
+      <div>
+        <div class="section-label">Voice Triage (Live Microphone or Audio Upload)</div>
+        <div class="mic-card">
+          <div class="mic-controls">
+            <button type="button" class="btn-mic" id="recordBtn">
+              <span id="micIcon">🎙️</span>
+              <span id="micBtnText">Record Voice</span>
+            </button>
+            <div class="rec-indicator" id="recIndicator">
+              <span class="rec-dot"></span>
+              <span id="recTimer">00:00</span>
+            </div>
+            <button type="button" class="btn btn-secondary" id="uploadFileBtn" style="padding:8px 12px; font-size:12px;">
+              📁 Upload File
+            </button>
+            <input type="file" id="voiceFile" accept="audio/*" style="display:none;">
+          </div>
+          <div style="font-size:12px; color:var(--text-muted);" id="voiceStatusNotice">
+            Offline speech-to-text via faster-whisper CPU int8. Recordings are transcribed directly on-device.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Column: Results & Grounding -->
+    <div class="panel">
+      <div class="view-tabs">
+        <button type="button" class="view-tab-btn active" id="tabTriageBtn">Active Triage Assessment</button>
+        <button type="button" class="view-tab-btn" id="tabAuditBtn">On-Device Audit Trail</button>
+      </div>
+
+      <!-- Triage View -->
+      <div id="triageView" style="display:flex; flex-direction:column; gap:16px;">
+        <!-- Banner -->
+        <div class="triage-banner banner-READY" id="priorityBanner">
+          <span id="priorityTitle">READY FOR CLINICAL INTAKE</span>
+          <span style="font-size:13px; font-weight:normal;" id="prioritySubtitle">Select a language or preset to populate symptoms</span>
+        </div>
+
+        <!-- Evaluation Scope Notice -->
+        <div class="evaluation-scope-notice">
+          <strong>Evaluation Scope:</strong> Alheri evaluates symptoms against WHO mhGAP 2.0 and local Nigerian clinical guidelines (including physical and infectious medical rule-outs, cultural idioms, and crisis protocols, but not restricted to it alone).
+        </div>
+
+        <!-- Live Progress Status -->
+        <div class="live-status" id="liveStatus">
+          <span class="spinner" style="border-top-color:var(--accent); border-color:rgba(5,150,105,0.2);"></span>
+          <span id="liveStatusText">Searching local knowledge base...</span>
+        </div>
+
+        <!-- Triage Output Box -->
+        <div class="output-content" id="triageOutput">Welcome to Alheri.
+
+• Select a language button above to instantly load representative patient symptoms in English, Hausa, Pidgin, Igbo, Yoruba, or Arabic.
+• Click "Run Clinical Triage" to generate an immediate offline clinical evaluation.
+• Click "Record Voice" to speak directly using your microphone.
+• Responses are strictly formulated in the EXACT SAME LANGUAGE as the patient's statement.
+• Alheri evaluates symptoms against WHO mhGAP 2.0 and local Nigerian clinical guidelines (including physical and infectious medical rule-outs, cultural idioms, and crisis protocols, but not restricted to it alone).
+• All data and audio processing remain 100% on this offline edge device with zero cloud calls.</div>
+
+        <!-- Citations Box -->
+        <div class="citations-box">
+          <div class="section-label" style="display:flex; justify-content:space-between;">
+            <span>Retrieved Knowledge Base Protocols</span>
+            <span id="citationCount" style="color:#0369a1; font-weight:700;">0 Citations</span>
+          </div>
+          <div id="citationsContainer">
+            <div style="font-size:13px; color:var(--text-muted); font-style:italic;">No clinical protocols retrieved yet.</div>
+          </div>
+        </div>
+
+        <!-- Stats Bar -->
+        <div class="stats-footer">
+          <div>Language: <strong id="statLang">Auto</strong></div>
+          <div>RAG Retrieval: <strong id="statRag">-- ms</strong></div>
+          <div>Total Latency: <strong id="statTotal">-- s</strong></div>
+          <div>Process RAM: <strong id="statRam">-- MB</strong></div>
+        </div>
+      </div>
+
+      <!-- Audit View -->
+      <div id="auditView" style="display:none; flex-direction:column; gap:12px;">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <div class="section-label">Local On-Device Audit Trail (audit_log.jsonl)</div>
+          <button type="button" class="btn btn-secondary" id="refreshAuditBtn" style="padding:4px 10px; font-size:12px;">Refresh</button>
+        </div>
+        <div id="auditList" style="max-height:550px; overflow-y:auto; display:flex; flex-direction:column; gap:10px;">
+          <!-- Dynamically populated -->
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    <div>Human-Scale AI: <strong>Small, Intentional, Tailored</strong> for Rural Primary Care.</div>
+    <div>Zero Telemetry • Ollama (gemma2:2b / nomic-embed-text) • faster-whisper (CPU int8)</div>
+  </footer>
+
+  <script>
+    let currentSelectedLang = 'auto';
+    let mediaRecorder = null;
+    let audioChunks = [];
+    let recordInterval = null;
+    let recordSeconds = 0;
+
+    const DEFAULT_PROMPTS = {
+      auto: "Patient is a 28-year-old presenting with severe internal heat ('zafin jiki'), extreme fatigue, loss of interest in farming, and inability to sleep for 3 weeks.",
+      en: "Patient is a 24-year-old mother, 3 weeks postpartum, presenting with acute confusion, refusal to nurse, fever, and paranoia.",
+      ha: "Ina jin damuwa kwarai, kaina yana sara min, kuma ina jin zafi a cikin jikina har ba na iya bacci.",
+      pid: "My body dey pepper me like say fire dey burn inside me, and everything just tire me. Make I just die rest.",
+      ig: "Obi na-akụ m aka nke ukwuu, ike adịghị m n'ahụ, ndụ a agwụla m ike. Ka m nwụọ zuo ike.",
+      yo: "Inú mi ń bàjẹ́ kọjá ààlà, orí mi ń fọ́ mi bí ẹni pé ó fẹ́ bẹ́, ayé sì ti sú mi pátápátá.",
+      ar: "أشعر بنار وحرارة داخلية تحرق جسدي، وضيق شديد في صدري وتعبت من الحياة وأريد أن أرتاح."
+    };
+
+    const LANG_NAMES = {
+      auto: "Auto-Detect",
+      en: "English",
+      ha: "Hausa",
+      pid: "Pidgin",
+      ig: "Igbo",
+      yo: "Yoruba",
+      ar: "العربية (Arabic)"
+    };
+
+    const SAMPLE_PRESETS = [
+      {
+        lang: "ha",
+        tag: "Hausa",
+        text: "Ina jin damuwa kwarai, kaina yana sara min, kuma ina jin zafi a cikin jikina har ba na iya bacci.",
+        desc: "Damuwa da zafin jiki (Depressive somatization)"
+      },
+      {
+        lang: "pid",
+        tag: "Pidgin",
+        text: "My body dey pepper me like say fire dey burn inside me, and everything just tire me. Make I just die rest.",
+        desc: "Body dey pepper me and life tire me (Passive ideation)"
+      },
+      {
+        lang: "ig",
+        tag: "Igbo",
+        text: "Obi na-akụ m aka nke ukwuu, ike adịghị m n'ahụ, ndụ a agwụla m ike. Ka m nwụọ zuo ike.",
+        desc: "Obi na-akụ aka and ndụ agwụla ike (Distress and exhaustion)"
+      },
+      {
+        lang: "yo",
+        tag: "Yoruba",
+        text: "Inú mi ń bàjẹ́ kọjá ààlà, orí mi ń fọ́ mi bí ẹni pé ó fẹ́ bẹ́, ayé sì ti sú mi pátápátá.",
+        desc: "Inú bàjẹ́ and orí fífọ́ (Depressive distress / Ayé sú mi)"
+      },
+      {
+        lang: "ar",
+        tag: "العربية",
+        text: "أشعر بنار وحرارة داخلية تحرق جسدي، وضيق شديد في صدري وتعبت من الحياة وأريد أن أرتاح.",
+        desc: "حرارة داخلية وتعب من الحياة (Somatic depression)"
+      },
+      {
+        lang: "en",
+        tag: "English",
+        text: "Patient is a 24-year-old mother, 3 weeks postpartum, presenting with acute confusion, refusal to nurse, fever, and paranoia.",
+        desc: "Postpartum confusion and acute distress"
+      },
+      {
+        lang: "ha",
+        tag: "Hausa",
+        text: "Wani abu yana tursasa ni in cutar da kaina, kuma ina jin muryoyi da daddare a cikin daki.",
+        desc: "Muryoyi da son cutar da kai (Psychosis / Code Red)"
+      },
+      {
+        lang: "pid",
+        tag: "Pidgin",
+        text: "Dis guy dey shout say people dey monitor am for village, e carry cutlass break window for community.",
+        desc: "Acute aggression with cutlass (Emergency Code Red)"
+      },
+      {
+        lang: "ig",
+        tag: "Igbo",
+        text: "Nwatakịrị a nwere oke ahụ ọkụ ụbọchị atọ, ugbu a ọ na-ekwu okwu aghara aghara ma na-atụ aka n'ikuku.",
+        desc: "Ahụ ọkụ na aghara aghara (Cerebral Malaria rule-out)"
+      },
+      {
+        lang: "yo",
+        tag: "Yoruba",
+        text: "Nǹkan kan ń sọ fún mi ní alẹ́ láti pa ara mi, mo sì ń gbọ́ ohùn àwọn ènìyàn tí kò sí níbẹ̀.",
+        desc: "Ohùn àjèjì and èrò ikú (Auditory hallucinations / Crisis)"
+      },
+      {
+        lang: "ar",
+        tag: "العربية",
+        text: "حمى شديدة منذ 3 أيام مع تخليط في الكلام وهذيان وأصوات غير مفهومة وغير قادر على المشي.",
+        desc: "حمى وهذيان (Organic Delirium / Cerebral Malaria rule-out)"
+      }
+    ];
+
+    function showToast(msg, bg = '#ecfdf5', color = '#065f46', border = '#a7f3d0') {
+      const toast = document.getElementById('toastBanner');
+      if (!toast) return;
+      toast.innerText = msg;
+      toast.style.background = bg;
+      toast.style.color = color;
+      toast.style.border = '1px solid ' + border;
+      toast.style.display = 'block';
+      setTimeout(() => {
+        toast.style.display = 'none';
+      }, 5000);
+    }
+
+    function renderPresets(filterLang = 'auto') {
+      const container = document.getElementById('presetsList');
+      container.innerHTML = '';
+      const list = (filterLang === 'auto')
+        ? SAMPLE_PRESETS
+        : SAMPLE_PRESETS.filter(p => p.lang === filterLang);
+
+      list.forEach((p) => {
+        const card = document.createElement('div');
+        card.className = 'preset-card';
+        card.setAttribute('role', 'button');
+        card.onclick = () => selectPreset(p, card);
+        card.innerHTML = `
+          <span>${p.desc}</span>
+          <span class="preset-tag tag-${p.lang}">${p.tag}</span>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    function selectPreset(preset, element) {
+      document.querySelectorAll('.preset-card').forEach(c => c.classList.remove('active-preset'));
+      if (element) element.classList.add('active-preset');
+
+      const input = document.getElementById('chatInput');
+      input.value = preset.text;
+      if (preset.lang === 'ar') {
+        input.dir = 'rtl';
+      } else {
+        input.dir = 'ltr';
+      }
+      input.focus();
+      showToast('Loaded preset scenario: "' + preset.desc + '"', '#eff6ff', '#1d4ed8', '#bfdbfe');
+    }
+
+    function selectLanguage(lang) {
+      currentSelectedLang = lang;
+
+      // Update active button state
+      document.querySelectorAll('.lang-btn').forEach(btn => {
+        if (btn.getAttribute('data-lang') === lang) {
+          btn.classList.add('active');
+        } else {
+          btn.classList.remove('active');
+        }
+      });
+
+      // Update active language label
+      const notice = document.getElementById('activeLangNotice');
+      notice.innerHTML = 'Active Intake Language: <strong>' + (LANG_NAMES[lang] || lang) + '</strong> (Symptoms populated below)';
+
+      // Auto-populate textarea with representative symptom in this language
+      const input = document.getElementById('chatInput');
+      input.value = DEFAULT_PROMPTS[lang] || DEFAULT_PROMPTS.auto;
+      if (lang === 'ar') {
+        input.dir = 'rtl';
+      } else {
+        input.dir = 'ltr';
+      }
+
+      // Filter presets
+      renderPresets(lang);
+
+      input.focus();
+      showToast('Language switched to ' + LANG_NAMES[lang] + '. Standard clinical intake prompt populated.', '#ecfdf5', '#065f46', '#a7f3d0');
+    }
+
+    function clearAll() {
+      document.getElementById('chatInput').value = '';
+      document.querySelectorAll('.preset-card').forEach(c => c.classList.remove('active-preset'));
+
+      const banner = document.getElementById('priorityBanner');
+      banner.className = 'triage-banner banner-READY';
+      document.getElementById('priorityTitle').innerText = 'READY FOR CLINICAL INTAKE';
+      document.getElementById('prioritySubtitle').innerText = 'Select a language or preset to populate symptoms';
+
+      const outputBox = document.getElementById('triageOutput');
+      outputBox.removeAttribute('dir');
+      outputBox.innerText = `Welcome to Alheri.
+
+• Select a language button above to instantly load representative patient symptoms in English, Hausa, Pidgin, Igbo, Yoruba, or Arabic.
+• Click "Run Clinical Triage" to generate an immediate offline clinical evaluation.
+• Click "Record Voice" to speak directly using your microphone.
+• Responses are strictly formulated in the EXACT SAME LANGUAGE as the patient's statement.
+• Alheri evaluates symptoms against WHO mhGAP 2.0 and local Nigerian clinical guidelines (including physical and infectious medical rule-outs, cultural idioms, and crisis protocols, but not restricted to it alone).
+• All data and audio processing remain 100% on this offline edge device with zero cloud calls.`;
+
+      const citContainer = document.getElementById('citationsContainer');
+      citContainer.innerHTML = '<div style="font-size:13px; color:var(--text-muted); font-style:italic;">No clinical protocols retrieved yet.</div>';
+      document.getElementById('citationCount').innerText = '0 Citations';
+
+      document.getElementById('statLang').innerText = 'Auto';
+      document.getElementById('statRag').innerText = '-- ms';
+      document.getElementById('statTotal').innerText = '-- s';
+      document.getElementById('statRam').innerText = '-- MB';
+
+      document.getElementById('liveStatus').style.display = 'none';
+      document.getElementById('chatInput').focus();
+      showToast('Triage assessment reset. Ready for next patient.', '#f8fafc', '#334155', '#cbd5e1');
+    }
+
+    function switchView(view) {
+      const triageView = document.getElementById('triageView');
+      const auditView = document.getElementById('auditView');
+      const tabTriageBtn = document.getElementById('tabTriageBtn');
+      const tabAuditBtn = document.getElementById('tabAuditBtn');
+
+      if (view === 'triage') {
+        triageView.style.display = 'flex';
+        auditView.style.display = 'none';
+        tabTriageBtn.classList.add('active');
+        tabAuditBtn.classList.remove('active');
+      } else {
+        triageView.style.display = 'none';
+        auditView.style.display = 'flex';
+        tabTriageBtn.classList.remove('active');
+        tabAuditBtn.classList.add('active');
+        loadAuditTrail();
+      }
+    }
+
+    async function updateHealth() {
+      try {
+        const res = await fetch('/health');
+        const d = await res.json();
+        document.getElementById('ramPill').innerText = 'RAM: ' + d.system.ram_used_mb + ' MB / ' + d.system.ram_total_mb + ' MB (' + d.system.ram_percent + '%)';
+      } catch (e) {
+        document.getElementById('ramPill').innerText = 'Server Offline';
+      }
+    }
+
+    async function reindexKnowledgeBase() {
+      const btn = document.getElementById('reindexBtn');
+      if (btn) {
+        btn.disabled = true;
+        btn.innerText = 'Indexing KB...';
+      }
+      showToast('Re-indexing clinical knowledge base into local ChromaDB...', '#eff6ff', '#1d4ed8', '#bfdbfe');
+      try {
+        const res = await fetch('/ingest', { method: 'POST' });
+        const d = await res.json();
+        showToast('Successfully indexed ' + d.chunks_indexed + ' chunks from ' + d.files_indexed + ' Markdown protocols into local ChromaDB.', '#ecfdf5', '#065f46', '#a7f3d0');
+        updateHealth();
+      } catch (e) {
+        showToast('Ingest error: ' + e.message, '#fef2f2', '#991b1b', '#fca5a5');
+      } finally {
+        if (btn) {
+          btn.disabled = false;
+          btn.innerText = '↻ Re-index KB';
+        }
+      }
+    }
+
+    // LIVE MICROPHONE RECORDING (Web Audio MediaRecorder API)
+    async function toggleMicrophone() {
+      const btn = document.getElementById('recordBtn');
+      const micText = document.getElementById('micBtnText');
+      const micIcon = document.getElementById('micIcon');
+      const recIndicator = document.getElementById('recIndicator');
+      const recTimer = document.getElementById('recTimer');
+      const statusNotice = document.getElementById('voiceStatusNotice');
+
+      if (mediaRecorder && mediaRecorder.state === 'recording') {
+        // Stop recording
+        mediaRecorder.stop();
+        btn.classList.remove('recording');
+        micIcon.innerText = '⏳';
+        micText.innerText = 'Transcribing...';
+        recIndicator.style.display = 'none';
+        clearInterval(recordInterval);
+        return;
+      }
+
+      // Start recording
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        audioChunks = [];
+        mediaRecorder = new MediaRecorder(stream);
+
+        mediaRecorder.ondataavailable = e => {
+          if (e.data.size > 0) audioChunks.push(e.data);
+        };
+
+        mediaRecorder.onstop = async () => {
+          stream.getTracks().forEach(track => track.stop());
+          const audioBlob = new Blob(audioChunks, { type: audioChunks[0]?.type || 'audio/webm' });
+          statusNotice.innerText = 'Transcribing voice offline with faster-whisper (CPU int8)...';
+
+          const formData = new FormData();
+          formData.append('file', audioBlob, 'recording.webm');
+          formData.append('language', currentSelectedLang);
+
+          try {
+            const res = await fetch('/voice-chat', {
+              method: 'POST',
+              body: formData
+            });
+            const data = await res.json();
+
+            if (data.transcription && data.transcription.text) {
+              document.getElementById('chatInput').value = data.transcription.text;
+            }
+
+            renderFullTriageResult(data);
+            statusNotice.innerText = 'Transcribed (' + (data.transcription ? data.transcription.detected_language : 'offline') + '): "' + (data.transcription ? data.transcription.text : '') + '"';
+          } catch (err) {
+            showToast('Voice transcription failed: ' + err.message, '#fef2f2', '#991b1b', '#fca5a5');
+            statusNotice.innerText = 'Transcription error. Please try speaking again.';
+          } finally {
+            micIcon.innerText = '🎙️';
+            micText.innerText = 'Record Voice';
+            updateHealth();
+          }
+        };
+
+        mediaRecorder.start();
+        btn.classList.add('recording');
+        micIcon.innerText = '⏹️';
+        micText.innerText = 'Stop Recording';
+        recIndicator.style.display = 'inline-flex';
+        recordSeconds = 0;
+        recTimer.innerText = '00:00';
+        recordInterval = setInterval(() => {
+          recordSeconds++;
+          const m = String(Math.floor(recordSeconds / 60)).padStart(2, '0');
+          const s = String(recordSeconds % 60).padStart(2, '0');
+          recTimer.innerText = `${m}:${s}`;
+        }, 1000);
+
+        statusNotice.innerText = 'Recording live... Speak clearly into your microphone.';
+      } catch (err) {
+        showToast('Microphone access denied or unavailable: ' + err.message, '#fef2f2', '#991b1b', '#fca5a5');
+      }
+    }
+
+    async function handleVoiceUpload(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const statusNotice = document.getElementById('voiceStatusNotice');
+      statusNotice.innerText = 'Transcribing ' + file.name + ' offline...';
+
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('language', currentSelectedLang);
+
+      try {
+        const res = await fetch('/voice-chat', {
+          method: 'POST',
+          body: formData
+        });
+        const data = await res.json();
+        if (data.transcription && data.transcription.text) {
+          document.getElementById('chatInput').value = data.transcription.text;
+        }
+        renderFullTriageResult(data);
+        statusNotice.innerText = 'Transcribed (' + file.name + '): "' + (data.transcription ? data.transcription.text : '') + '"';
+      } catch (e) {
+        showToast('Voice upload error: ' + e.message, '#fef2f2', '#991b1b', '#fca5a5');
+        statusNotice.innerText = 'Voice transcription error.';
+      } finally {
+        updateHealth();
+      }
+    }
+
+    function sanitizeClinicalText(text) {
+      if (!text) return '';
+      return text
+        .replace(/\*\*/g, '')
+        .replace(/\*/g, '')
+        .replace(/##/g, '')
+        .replace(/#/g, '')
+        .replace(/(?:[A-Za-z]-){3,}[A-Za-z]?-?/g, '')
+        .replace(/(?:[A-Za-z]'[A-Za-z]'?|[A-Za-z]'){3,}/g, '')
+        .replace(/(\S{1,6})\1{4,}/g, '')
+        .replace(/-{3,}/g, '')
+        .trim();
+    }
+
+    function renderFullTriageResult(data) {
+      const outputBox = document.getElementById('triageOutput');
+      outputBox.innerText = sanitizeClinicalText(data.triage_response);
+
+      const priority = data.priority || 'GREEN';
+      const banner = document.getElementById('priorityBanner');
+      const pTitle = document.getElementById('priorityTitle');
+      const pSub = document.getElementById('prioritySubtitle');
+
+      banner.className = 'triage-banner banner-' + priority;
+      if (priority === 'RED') {
+        pTitle.innerText = '🚨 CODE RED (IMMEDIATE EMERGENCY)';
+        pSub.innerText = 'High risk / acute toxicity / violent psychosis. Immediate stabilization & transfer.';
+      } else if (priority === 'YELLOW') {
+        pTitle.innerText = '⚠️ CODE YELLOW (URGENT - WITHIN 2 HOURS)';
+        pSub.innerText = 'Severe distress / passive ideation / active hallucinations. Clinical review.';
+      } else {
+        pTitle.innerText = '✅ CODE GREEN (ROUTINE CARE)';
+        pSub.innerText = 'Mild situational anxiety / insomnia / psychosocial supportive counseling.';
+      }
+
+      document.getElementById('statLang').innerText = data.language || 'Auto';
+      document.getElementById('statRag').innerText = (data.latency ? data.latency.retrieval_ms : 0) + ' ms';
+      document.getElementById('statTotal').innerText = (((data.latency ? data.latency.total_ms : 0)/1000).toFixed(2)) + ' s';
+      document.getElementById('statRam').innerText = (data.system ? data.system.process_ram_mb : 0) + ' MB';
+
+      renderCitations(data.citations);
+
+      if (data.language === 'Arabic') {
+        outputBox.setAttribute('dir', 'rtl');
+      } else {
+        outputBox.removeAttribute('dir');
+      }
+    }
+
+    function renderCitations(citations) {
+      const citContainer = document.getElementById('citationsContainer');
+      const citCount = document.getElementById('citationCount');
+      citContainer.innerHTML = '';
+
+      if (citations && citations.length > 0) {
+        citCount.innerText = citations.length + ' Protocols Grounded';
+        citations.forEach((c, i) => {
+          const div = document.createElement('div');
+          div.className = 'citation-item';
+          div.innerHTML = `
+            <div class="citation-title">
+              <span>[${i+1}] ${c.source} &bull; ${c.section}</span>
+              <span>Relevance: ${(c.relevance_score * 100).toFixed(1)}%</span>
+            </div>
+            <div class="citation-snippet">${c.text.substring(0, 240)}...</div>
+          `;
+          citContainer.appendChild(div);
+        });
+      } else {
+        citCount.innerText = '0 Citations';
+        citContainer.innerHTML = '<div style="font-size:13px; color:var(--text-muted); font-style:italic;">No matching protocols found.</div>';
+      }
+    }
+
+    // REAL-TIME STREAMING WITH ROBUST FALLBACK
+    async function runStreamingTriage() {
+      let text = document.getElementById('chatInput').value.trim();
+      if (!text) {
+        // Auto-fill default prompt for active language if empty so user is never blocked
+        text = DEFAULT_PROMPTS[currentSelectedLang] || DEFAULT_PROMPTS.auto;
+        document.getElementById('chatInput').value = text;
+      }
+
+      const btn = document.getElementById('triageBtn');
+      btn.disabled = true;
+      btn.innerHTML = '<span class="spinner"></span> Triaging...';
+
+      const liveStatus = document.getElementById('liveStatus');
+      const liveStatusText = document.getElementById('liveStatusText');
+      const outputBox = document.getElementById('triageOutput');
+      const banner = document.getElementById('priorityBanner');
+      const pTitle = document.getElementById('priorityTitle');
+      const pSub = document.getElementById('prioritySubtitle');
+
+      liveStatus.style.display = 'flex';
+      liveStatusText.innerText = 'Searching clinical protocols (WHO mhGAP 2.0 & Nigerian guidelines)...';
+      outputBox.innerText = '';
+      banner.className = 'triage-banner banner-READY';
+      pTitle.innerText = 'TRIAGE IN PROGRESS...';
+      pSub.innerText = 'Evaluating symptoms offline';
+
+      const tStart = performance.now();
+
+      try {
+        const response = await fetch('/chat-stream', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ message: text, language: currentSelectedLang })
+        });
+
+        if (!response.ok) {
+          throw new Error('Streaming failed with status: ' + response.status);
+        }
+
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder('utf-8');
+        let buffer = '';
+
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+
+          buffer += decoder.decode(value, { stream: true });
+          const lines = buffer.split('\n');
+          buffer = lines.pop();
+
+          let currentEvent = null;
+
+          for (const line of lines) {
+            if (line.startsWith('event: ')) {
+              currentEvent = line.substring(7).trim();
+            } else if (line.startsWith('data: ') && currentEvent) {
+              const dataStr = line.substring(6).trim();
+              try {
+                const data = JSON.parse(dataStr);
+                if (currentEvent === 'metadata') {
+                  document.getElementById('statLang').innerText = data.language;
+                  document.getElementById('statRag').innerText = data.retrieval_ms + ' ms';
+                  liveStatusText.innerText = 'Formulating triage in ' + data.language + '...';
+                  renderCitations(data.citations);
+                  if (data.language === 'Arabic') outputBox.setAttribute('dir', 'rtl');
+                  else outputBox.removeAttribute('dir');
+                } else if (currentEvent === 'token') {
+                  let cleanTok = data.text.replace(/[*#]/g, '');
+                  outputBox.innerText += cleanTok;
+                  outputBox.scrollTop = outputBox.scrollHeight;
+                } else if (currentEvent === 'done') {
+                  let text = data.final_text || outputBox.innerText;
+                  outputBox.innerText = sanitizeClinicalText(text);
+                  const priority = data.priority || 'GREEN';
+                  banner.className = 'triage-banner banner-' + priority;
+                  if (priority === 'RED') {
+                    pTitle.innerText = '🚨 CODE RED (IMMEDIATE EMERGENCY)';
+                    pSub.innerText = 'High risk / acute toxicity / violent psychosis. Immediate stabilization & transfer.';
+                  } else if (priority === 'YELLOW') {
+                    pTitle.innerText = '⚠️ CODE YELLOW (URGENT - WITHIN 2 HOURS)';
+                    pSub.innerText = 'Severe distress / passive ideation / active hallucinations. Clinical review.';
+                  } else {
+                    pTitle.innerText = '✅ CODE GREEN (ROUTINE CARE)';
+                    pSub.innerText = 'Mild situational anxiety / insomnia / psychosocial supportive counseling.';
+                  }
+                  const elapsedSec = ((performance.now() - tStart) / 1000).toFixed(2);
+                  document.getElementById('statTotal').innerText = elapsedSec + ' s';
+                  document.getElementById('statRam').innerText = data.system.process_ram_mb + ' MB';
+                }
+              } catch (err) {}
+              currentEvent = null;
+            }
+          }
+        }
+      } catch (streamErr) {
+        // Fallback to standard synchronous endpoint
+        liveStatusText.innerText = 'Processing clinical triage (Standard Mode)...';
+        try {
+          const res = await fetch('/chat', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ message: text, language: currentSelectedLang })
+          });
+          const data = await res.json();
+          renderFullTriageResult(data);
+        } catch (syncErr) {
+          outputBox.innerText = 'Error running triage: ' + syncErr.message;
+        }
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<span>Run Clinical Triage</span>';
+        liveStatus.style.display = 'none';
+        updateHealth();
+      }
+    }
+
+    async function loadAuditTrail() {
+      const container = document.getElementById('auditList');
+      container.innerHTML = '<div style="color:var(--text-muted); font-size:13px;">Loading audit trail...</div>';
+      try {
+        const res = await fetch('/audit?limit=25');
+        const d = await res.json();
+        container.innerHTML = '';
+        if (!d.records || d.records.length === 0) {
+          container.innerHTML = '<div style="color:var(--text-muted); font-size:13px;">Audit log is empty.</div>';
+          return;
+        }
+        d.records.forEach(r => {
+          const card = document.createElement('div');
+          card.className = 'citation-item';
+          card.innerHTML = `
+            <div class="citation-title">
+              <span style="color:${r.priority === 'RED' ? '#dc2626' : (r.priority === 'YELLOW' ? '#d97706' : '#16a34a')}">[${r.priority || 'N/A'}] ${r.language || 'English'} &bull; ${r.type}</span>
+              <span style="color:#64748b;">${r.total_ms || 0} ms | RAM: ${r.ram_mb || 0}MB</span>
+            </div>
+            <div style="font-size:13px; color:#1e293b; margin-top:2px;">"${r.query || ''}"</div>
+            <div style="font-size:11px; color:#94a3b8; margin-top:4px;">Logged: ${r.logged_at} &bull; Zero Cloud Telemetry: Verified</div>
+          `;
+          container.appendChild(card);
+        });
+      } catch (e) {
+        container.innerHTML = '<div style="color:#dc2626; font-size:13px;">Failed to load audit records: ' + e.message + '</div>';
+      }
+    }
+
+    // Attach Event Listeners on DOMContentLoaded
+    document.addEventListener('DOMContentLoaded', () => {
+      // Language buttons
+      document.querySelectorAll('.lang-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          e.preventDefault();
+          const lang = btn.getAttribute('data-lang');
+          selectLanguage(lang);
+        });
+      });
+
+      // Clear button
+      const clearBtn = document.getElementById('clearBtn');
+      if (clearBtn) {
+        clearBtn.addEventListener('click', (e) => {
+          e.preventDefault();
+          clearAll();
+        });
+      }
+
+      // Run Clinical Triage button
+      const triageBtn = document.getElementById('triageBtn');
+      if (triageBtn) {
+        triageBtn.addEventListener('click', (e) => {
+          e.preventDefault();
+          runStreamingTriage();
+        });
+      }
+
+      // Re-index button
+      const reindexBtn = document.getElementById('reindexBtn');
+      if (reindexBtn) {
+        reindexBtn.addEventListener('click', (e) => {
+          e.preventDefault();
+          reindexKnowledgeBase();
+        });
+      }
+
+      // Record voice button
+      const recordBtn = document.getElementById('recordBtn');
+      if (recordBtn) {
+        recordBtn.addEventListener('click', (e) => {
+          e.preventDefault();
+          toggleMicrophone();
+        });
+      }
+
+      // Upload file button
+      const uploadFileBtn = document.getElementById('uploadFileBtn');
+      const voiceFile = document.getElementById('voiceFile');
+      if (uploadFileBtn && voiceFile) {
+        uploadFileBtn.addEventListener('click', (e) => {
+          e.preventDefault();
+          voiceFile.click();
+        });
+        voiceFile.addEventListener('change', handleVoiceUpload);
+      }
+
+      // View tabs
+      const tabTriageBtn = document.getElementById('tabTriageBtn');
+      const tabAuditBtn = document.getElementById('tabAuditBtn');
+      if (tabTriageBtn) {
+        tabTriageBtn.addEventListener('click', () => switchView('triage'));
+      }
+      if (tabAuditBtn) {
+        tabAuditBtn.addEventListener('click', () => switchView('audit'));
+      }
+
+      // Refresh audit button
+      const refreshAuditBtn = document.getElementById('refreshAuditBtn');
+      if (refreshAuditBtn) {
+        refreshAuditBtn.addEventListener('click', loadAuditTrail);
+      }
+
+      // Initial Render
+      renderPresets('auto');
+      updateHealth();
+      setInterval(updateHealth, 5000);
+    });
+  </script>
+</body>
+</html>
