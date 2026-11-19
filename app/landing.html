@@ -149,20 +149,6 @@
       text-align: center;
     }
 
-    .hero-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      background: #eff6ff;
-      border: 1px solid #bfdbfe;
-      color: #1e40af;
-      padding: 6px 16px;
-      border-radius: 9999px;
-      font-size: 13px;
-      font-weight: 700;
-      margin-bottom: 24px;
-    }
-
     .hero-logo-container {
       width: 120px;
       height: 120px;
@@ -295,15 +281,7 @@
       border: 1px solid #bfdbfe;
       border-radius: 10px;
       padding: 16px 24px;
-      display: flex;
-      align-items: flex-start;
-      gap: 16px;
       text-align: left;
-    }
-
-    .scope-icon {
-      font-size: 24px;
-      flex-shrink: 0;
     }
 
     .scope-text {
@@ -375,17 +353,18 @@
       box-shadow: 0 8px 20px rgba(0,0,0,0.04);
     }
 
-    .feature-icon {
-      width: 44px;
-      height: 44px;
-      border-radius: 10px;
+    .feature-number {
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
       background: var(--accent-light);
       color: var(--accent);
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 20px;
+      font-size: 14px;
       font-weight: 800;
+      font-family: var(--font-mono);
     }
 
     .feature-title {
@@ -424,17 +403,7 @@
       font-weight: 800;
       color: #0f172a;
       font-size: 15px;
-      margin-bottom: 4px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .lang-badge {
-      font-size: 11px;
-      padding: 2px 8px;
-      border-radius: 4px;
-      font-weight: 700;
+      margin-bottom: 6px;
     }
 
     .lang-sample {
@@ -521,21 +490,16 @@
     <div class="nav-actions">
       <div class="badge-offline">
         <span class="pulse-dot"></span>
-        100% OFFLINE • ZERO CLOUD TELEMETRY
+        100% OFFLINE - ZERO CLOUD TELEMETRY
       </div>
       <a href="/triage" class="btn-launch">
-        <span>Open Triage Workspace</span>
-        <span>→</span>
+        Open Triage Workspace
       </a>
     </div>
   </header>
 
   <!-- Hero Section -->
   <section class="hero">
-    <div class="hero-badge">
-      <span>🛡️ Designed for Rural PHCs &amp; Low-Connectivity Clinics</span>
-    </div>
-
     <!-- Official Brand Logo -->
     <div class="hero-logo-container">
       <svg viewBox="0 0 512 512" width="120" height="120">
@@ -578,11 +542,10 @@
 
     <div class="cta-group">
       <a href="/triage" class="btn-primary-lg">
-        <span>⚡ Launch Clinical Triage</span>
-        <span>→</span>
+        Launch Clinical Triage
       </a>
       <a href="#architecture" class="btn-secondary-lg">
-        <span>Explore System Architecture</span>
+        Explore System Architecture
       </a>
     </div>
 
@@ -608,7 +571,6 @@
 
     <!-- Clinical Scope Notice -->
     <div class="scope-banner">
-      <div class="scope-icon">📋</div>
       <div class="scope-text">
         <strong>Evaluation Scope:</strong> Alheri evaluates symptoms against WHO mhGAP 2.0 and local Nigerian clinical guidelines (including physical and infectious medical rule-outs, cultural idioms, and crisis protocols, but not restricted to it alone).
       </div>
@@ -624,7 +586,7 @@
 
     <div class="grid-3">
       <div class="feature-card">
-        <div class="feature-icon">⚡</div>
+        <div class="feature-number">01</div>
         <div class="feature-title">100% Offline Local Inference</div>
         <div class="feature-desc">
           Runs local quantized models (`gemma2:2b` and `nomic-embed-text`) via Ollama. Operates entirely without cellular data, cloud APIs, or telemetry.
@@ -632,7 +594,7 @@
       </div>
 
       <div class="feature-card">
-        <div class="feature-icon">🎙️</div>
+        <div class="feature-number">02</div>
         <div class="feature-title">On-Device Voice Triage</div>
         <div class="feature-desc">
           CHEWs and patients can speak directly using the microphone. Audio is transcribed offline with `faster-whisper` on standard CPU hardware with zero cloud transmission.
@@ -640,7 +602,7 @@
       </div>
 
       <div class="feature-card">
-        <div class="feature-icon">📚</div>
+        <div class="feature-number">03</div>
         <div class="feature-title">Grounded Vector RAG</div>
         <div class="feature-desc">
           Every triage decision cites verified clinical protocols indexed into local ChromaDB storage, including suicide de-escalation, pesticide poisoning, and fever rule-outs.
@@ -648,7 +610,7 @@
       </div>
 
       <div class="feature-card">
-        <div class="feature-icon">🚨</div>
+        <div class="feature-number">04</div>
         <div class="feature-title">Three-Tiered Triage Protocol</div>
         <div class="feature-desc">
           Instantly stratifies patients into Code Red (Emergency Stabilization &amp; Transfer), Code Yellow (Urgent review within 2 hours), and Code Green (Routine care &amp; counseling).
@@ -656,7 +618,7 @@
       </div>
 
       <div class="feature-card">
-        <div class="feature-icon">🔒</div>
+        <div class="feature-number">05</div>
         <div class="feature-title">Sovereign Audit Logging</div>
         <div class="feature-desc">
           All clinical triage events are recorded to local append-only JSONL files (`audit_log.jsonl`) on disk for clinical review, with zero telemetry sent outside the facility.
@@ -664,7 +626,7 @@
       </div>
 
       <div class="feature-card">
-        <div class="feature-icon">🩺</div>
+        <div class="feature-number">06</div>
         <div class="feature-title">Mandatory Medical Rule-Outs</div>
         <div class="feature-desc">
           Explicitly checks for underlying organic infections (cerebral malaria mRDT, typhoid, hypoglycemia, postpartum psychosis) before psychiatric attribution.
@@ -682,50 +644,32 @@
 
     <div class="lang-grid">
       <div class="lang-item">
-        <div class="lang-name">
-          <span>English</span>
-          <span class="lang-badge" style="background:#fee2e2; color:#991b1b;">EN</span>
-        </div>
+        <div class="lang-name">English</div>
         <div class="lang-sample">"Patient presenting with acute confusion, paranoia, and refusal to nurse 3 weeks postpartum."</div>
       </div>
 
       <div class="lang-item">
-        <div class="lang-name">
-          <span>Hausa (Harshen Hausa)</span>
-          <span class="lang-badge" style="background:#e0e7ff; color:#3730a3;">HA</span>
-        </div>
+        <div class="lang-name">Hausa</div>
         <div class="lang-sample">"Ina jin damuwa kwarai, kaina yana sara min, kuma ina jin zafi a cikin jikina har ba na iya bacci."</div>
       </div>
 
       <div class="lang-item">
-        <div class="lang-name">
-          <span>Nigerian Pidgin</span>
-          <span class="lang-badge" style="background:#fef3c7; color:#92400e;">PID</span>
-        </div>
+        <div class="lang-name">Nigerian Pidgin</div>
         <div class="lang-sample">"My body dey pepper me like say fire dey burn inside me, and everything just tire me. Make I just die rest."</div>
       </div>
 
       <div class="lang-item">
-        <div class="lang-name">
-          <span>Igbo (Asụsụ Igbo)</span>
-          <span class="lang-badge" style="background:#fce7f3; color:#9d174d;">IG</span>
-        </div>
+        <div class="lang-name">Igbo</div>
         <div class="lang-sample">"Obi na-akụ m aka nke ukwuu, ike adịghị m n'ahụ, ndụ a agwụla m ike. Ka m nwụọ zuo ike."</div>
       </div>
 
       <div class="lang-item">
-        <div class="lang-name">
-          <span>Yoruba (Èdè Yorùbá)</span>
-          <span class="lang-badge" style="background:#ffedd5; color:#9a3412;">YO</span>
-        </div>
+        <div class="lang-name">Yoruba</div>
         <div class="lang-sample">"Inú mi ń bàjẹ́ kọjá ààlà, orí mi ń fọ́ mi bí ẹni pé ó fẹ́ bẹ́, ayé sì ti sú mi pátápátá."</div>
       </div>
 
       <div class="lang-item">
-        <div class="lang-name">
-          <span>العربية (Arabic)</span>
-          <span class="lang-badge" style="background:#dcfce7; color:#166534;">AR</span>
-        </div>
+        <div class="lang-name">العربية</div>
         <div class="lang-sample" dir="rtl">"أشعر بنار وحرارة داخلية تحرق جسدي، وضيق شديد في صدري وتعبت من الحياة وأريد أن أرتاح."</div>
       </div>
     </div>
@@ -742,7 +686,7 @@
       <div class="principle-item">
         <h3>1. Small</h3>
         <p>
-          Runs smoothly on standard consumer hardware (<15W power draw, 8GB RAM). Fits easily on a solar-powered mini PC or clinic laptop without costly cloud GPU servers.
+          Runs smoothly on standard consumer hardware (&lt;15W power draw, 8GB RAM). Fits easily on a solar-powered mini PC or clinic laptop without costly cloud GPU servers.
         </p>
       </div>
 
@@ -763,8 +707,7 @@
 
     <div style="text-align:center; margin-top:48px;">
       <a href="/triage" class="btn-primary-lg">
-        <span>Launch Clinical Triage Workspace</span>
-        <span>→</span>
+        Launch Clinical Triage Workspace
       </a>
     </div>
   </section>
@@ -777,9 +720,9 @@
         <path d="M 180 340 L 238 160 C 244 142 268 142 274 160 L 332 340" fill="none" stroke="#ffffff" stroke-width="40" stroke-linecap="round"/>
         <path d="M 198 270 Q 256 315 314 270" fill="none" stroke="#34d399" stroke-width="36" stroke-linecap="round"/>
       </svg>
-      <span>Alheri (الخير) • Clinical Triage Assistant</span>
+      <span>Alheri (الخير) Clinical Triage Assistant</span>
     </div>
-    <div>Human-Scale AI for Rural Healthcare • 100% Offline • Zero Telemetry • Federal Neuro-Psychiatric Guidelines &amp; WHO mhGAP 2.0</div>
+    <div>Human-Scale AI for Rural Healthcare - 100% Offline - Zero Telemetry - WHO mhGAP 2.0</div>
   </footer>
 
   <script>
