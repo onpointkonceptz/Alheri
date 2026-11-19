@@ -1,0 +1,61 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
+  <defs>
+    <!-- Background Gradient -->
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#059669"/>
+      <stop offset="50%" stop-color="#047857"/>
+      <stop offset="100%" stop-color="#065f46"/>
+    </linearGradient>
+
+    <!-- Accent Glow Gradient -->
+    <linearGradient id="accentGlow" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#34d399"/>
+      <stop offset="100%" stop-color="#10b981"/>
+    </linearGradient>
+
+    <!-- Subtle Drop Shadow -->
+    <filter id="softShadow" x="-10%" y="-10%" width="130%" height="130%">
+      <feDropShadow dx="0" dy="12" stdDeviation="16" flood-color="#064e3b" flood-opacity="0.35"/>
+    </filter>
+  </defs>
+
+  <!-- Outer Rounded Shield / Squircle -->
+  <rect x="36" y="36" width="440" height="440" rx="110" fill="url(#bgGrad)" filter="url(#softShadow)"/>
+
+  <!-- Subtle Inner Protective Ring -->
+  <circle cx="256" cy="256" r="190" fill="none" stroke="rgba(255, 255, 255, 0.12)" stroke-width="4" stroke-dasharray="8 6"/>
+
+  <!-- Healthcare Cross Foundation (Gently Rounded & Softened) -->
+  <g transform="translate(256, 256)">
+    <!-- Vertical Cross Stem -->
+    <rect x="-38" y="-140" width="76" height="280" rx="38" fill="rgba(255, 255, 255, 0.18)"/>
+    <!-- Horizontal Cross Arms -->
+    <rect x="-140" y="-38" width="280" height="76" rx="38" fill="rgba(255, 255, 255, 0.18)"/>
+  </g>
+
+  <!-- Core Icon: Stylized Letter "A" (Alheri) Integrated with Caring Heart & Pulse -->
+  <g id="alheriMark">
+    <!-- Left Ascender of 'A' -->
+    <path d="M 180 340 L 238 160 C 244 142 268 142 274 160 L 332 340" 
+          fill="none" 
+          stroke="#ffffff" 
+          stroke-width="36" 
+          stroke-linecap="round" 
+          stroke-linejoin="round"/>
+
+    <!-- Arching Crossbar forming a Caring Heart / Protective Canopy -->
+    <path d="M 198 270 Q 256 315 314 270" 
+          fill="none" 
+          stroke="url(#accentGlow)" 
+          stroke-width="32" 
+          stroke-linecap="round"/>
+
+    <!-- Central Health Pulse / Vitality Point -->
+    <circle cx="256" cy="235" r="22" fill="#ffffff"/>
+    <circle cx="256" cy="235" r="12" fill="#059669"/>
+  </g>
+
+  <!-- Subtle Medical Sparkles (Wellness / Hope) -->
+  <circle cx="160" cy="160" r="10" fill="#a7f3d0" opacity="0.8"/>
+  <circle cx="352" cy="160" r="10" fill="#a7f3d0" opacity="0.8"/>
+</svg>

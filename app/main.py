@@ -582,13 +582,34 @@ def get_audit_trail(limit: int = 50):
 # ==============================================================================
 
 INDEX_HTML_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), "index.html"))
+LANDING_HTML_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), "landing.html"))
 
 
 @app.get("/", response_class=HTMLResponse)
-def index_page():
-    """Serves the clean white-background single-file HTML/CSS/JS Alheri user interface."""
+def root_page():
+    """Serves the welcome/landing page for Alheri."""
+    if os.path.exists(LANDING_HTML_PATH):
+        with open(LANDING_HTML_PATH, "r", encoding="utf-8") as f:
+            return HTMLResponse(content=f.read(), status_code=200)
+    with open(INDEX_HTML_PATH, "r", encoding="utf-8") as f:
+        return HTMLResponse(content=f.read(), status_code=200)
+
+
+@app.get("/welcome", response_class=HTMLResponse)
+@app.get("/landing", response_class=HTMLResponse)
+def landing_page():
+    """Serves the dedicated Welcome / Landing Page."""
+    if not os.path.exists(LANDING_HTML_PATH):
+        raise HTTPException(status_code=404, detail="landing.html not found.")
+    with open(LANDING_HTML_PATH, "r", encoding="utf-8") as f:
+        return HTMLResponse(content=f.read(), status_code=200)
+
+
+@app.get("/triage", response_class=HTMLResponse)
+@app.get("/app", response_class=HTMLResponse)
+def triage_page():
+    """Serves the clean clinical triage interface."""
     if not os.path.exists(INDEX_HTML_PATH):
         raise HTTPException(status_code=404, detail="index.html not found.")
     with open(INDEX_HTML_PATH, "r", encoding="utf-8") as f:
-        content = f.read()
-    return HTMLResponse(content=content, status_code=200)
+        return HTMLResponse(content=f.read(), status_code=200)

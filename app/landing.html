@@ -1,0 +1,803 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Alheri (الخير) | Edge Clinical Triage Assistant</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --surface: #f8fafc;
+      --card-bg: #ffffff;
+      --border: #e2e8f0;
+      --border-accent: #a7f3d0;
+      --text-main: #0f172a;
+      --text-muted: #475569;
+      --accent: #059669;
+      --accent-hover: #047857;
+      --accent-light: #ecfdf5;
+      --accent-border: #10b981;
+      --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      --font-mono: Consolas, 'Liberation Mono', Menlo, Courier, monospace;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text-main);
+      font-family: var(--font-sans);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Navigation */
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(8px);
+      border-bottom: 1px solid var(--border);
+      padding: 16px 36px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: all 0.2s ease;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      text-decoration: none;
+      color: inherit;
+    }
+
+    .brand-logo-svg {
+      width: 44px;
+      height: 44px;
+      flex-shrink: 0;
+    }
+
+    .brand-text-wrap {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .brand-title {
+      font-size: 20px;
+      font-weight: 800;
+      color: #0f172a;
+      letter-spacing: -0.5px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .brand-arabic {
+      font-size: 16px;
+      color: var(--accent);
+      font-weight: 700;
+      font-family: Tahoma, 'Segoe UI', Arial, sans-serif;
+    }
+
+    .brand-tagline {
+      font-size: 12px;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .badge-offline {
+      background: var(--accent-light);
+      border: 1px solid var(--border-accent);
+      color: #065f46;
+      border-radius: 9999px;
+      padding: 6px 14px;
+      font-size: 12px;
+      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+    }
+
+    .badge-offline .pulse-dot {
+      width: 8px;
+      height: 8px;
+      background: #10b981;
+      border-radius: 50%;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(0.95); opacity: 0.8; }
+      50% { transform: scale(1.25); opacity: 1; }
+      100% { transform: scale(0.95); opacity: 0.8; }
+    }
+
+    .btn-launch {
+      background: var(--accent);
+      color: #ffffff;
+      text-decoration: none;
+      font-weight: 700;
+      font-size: 14px;
+      padding: 10px 20px;
+      border-radius: 8px;
+      transition: background 0.15s ease, transform 0.1s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: 0 1px 3px rgba(5,150,105,0.2);
+    }
+
+    .btn-launch:hover {
+      background: var(--accent-hover);
+      transform: translateY(-1px);
+    }
+
+    /* Hero Section */
+    .hero {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 64px 24px 48px;
+      text-align: center;
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #eff6ff;
+      border: 1px solid #bfdbfe;
+      color: #1e40af;
+      padding: 6px 16px;
+      border-radius: 9999px;
+      font-size: 13px;
+      font-weight: 700;
+      margin-bottom: 24px;
+    }
+
+    .hero-logo-container {
+      width: 120px;
+      height: 120px;
+      margin: 0 auto 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.3s ease;
+    }
+
+    .hero-logo-container:hover {
+      transform: scale(1.05);
+    }
+
+    .hero h1 {
+      font-size: 48px;
+      font-weight: 850;
+      color: #0f172a;
+      line-height: 1.15;
+      letter-spacing: -1px;
+      margin-bottom: 20px;
+      max-width: 900px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .hero h1 span.gradient-text {
+      color: var(--accent);
+    }
+
+    .hero p.lead {
+      font-size: 19px;
+      color: var(--text-muted);
+      line-height: 1.6;
+      max-width: 780px;
+      margin: 0 auto 36px;
+    }
+
+    .cta-group {
+      display: flex;
+      justify-content: center;
+      gap: 16px;
+      flex-wrap: wrap;
+      margin-bottom: 48px;
+    }
+
+    .btn-primary-lg {
+      background: var(--accent);
+      color: #ffffff;
+      text-decoration: none;
+      font-size: 16px;
+      font-weight: 700;
+      padding: 14px 28px;
+      border-radius: 10px;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      transition: all 0.15s ease;
+      box-shadow: 0 4px 12px rgba(5,150,105,0.25);
+    }
+
+    .btn-primary-lg:hover {
+      background: var(--accent-hover);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(5,150,105,0.3);
+    }
+
+    .btn-secondary-lg {
+      background: #ffffff;
+      border: 1px solid var(--border);
+      color: #334155;
+      text-decoration: none;
+      font-size: 16px;
+      font-weight: 700;
+      padding: 14px 24px;
+      border-radius: 10px;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      transition: all 0.15s ease;
+    }
+
+    .btn-secondary-lg:hover {
+      background: #f8fafc;
+      border-color: #cbd5e1;
+    }
+
+    /* Live Health Bar */
+    .system-status-card {
+      background: #f8fafc;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px 24px;
+      max-width: 820px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
+      font-size: 13px;
+    }
+
+    .status-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .status-label {
+      color: var(--text-muted);
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .status-val {
+      font-weight: 700;
+      color: #0f172a;
+      font-family: var(--font-mono);
+    }
+
+    /* Clinical Evaluation Notice Banner */
+    .scope-banner {
+      max-width: 1100px;
+      margin: 32px auto 0;
+      background: #eff6ff;
+      border: 1px solid #bfdbfe;
+      border-radius: 10px;
+      padding: 16px 24px;
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+      text-align: left;
+    }
+
+    .scope-icon {
+      font-size: 24px;
+      flex-shrink: 0;
+    }
+
+    .scope-text {
+      font-size: 14px;
+      color: #1e40af;
+      line-height: 1.55;
+    }
+
+    .scope-text strong {
+      color: #172554;
+    }
+
+    /* Grid Features Section */
+    .section {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 72px 24px;
+    }
+
+    .section-header {
+      text-align: center;
+      margin-bottom: 48px;
+    }
+
+    .section-title {
+      font-size: 32px;
+      font-weight: 800;
+      color: #0f172a;
+      letter-spacing: -0.5px;
+      margin-bottom: 12px;
+    }
+
+    .section-sub {
+      font-size: 16px;
+      color: var(--text-muted);
+      max-width: 650px;
+      margin: 0 auto;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+    }
+
+    @media (max-width: 900px) {
+      .grid-3 {
+        grid-template-columns: 1fr;
+      }
+      .hero h1 {
+        font-size: 36px;
+      }
+    }
+
+    .feature-card {
+      background: #ffffff;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 28px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      transition: all 0.2s ease;
+    }
+
+    .feature-card:hover {
+      border-color: #cbd5e1;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.04);
+    }
+
+    .feature-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 10px;
+      background: var(--accent-light);
+      color: var(--accent);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      font-weight: 800;
+    }
+
+    .feature-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: #0f172a;
+    }
+
+    .feature-desc {
+      font-size: 14px;
+      color: var(--text-muted);
+      line-height: 1.6;
+    }
+
+    /* Multilingual Matrix */
+    .lang-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin-top: 24px;
+    }
+
+    @media (max-width: 768px) {
+      .lang-grid { grid-template-columns: 1fr; }
+    }
+
+    .lang-item {
+      background: #f8fafc;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 16px;
+      text-align: left;
+    }
+
+    .lang-name {
+      font-weight: 800;
+      color: #0f172a;
+      font-size: 15px;
+      margin-bottom: 4px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .lang-badge {
+      font-size: 11px;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-weight: 700;
+    }
+
+    .lang-sample {
+      font-size: 13px;
+      color: var(--text-muted);
+      font-style: italic;
+      line-height: 1.45;
+    }
+
+    /* Human-Scale AI Principles */
+    .principles-card {
+      background: #f8fafc;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 40px;
+      margin-top: 48px;
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 32px;
+    }
+
+    @media (max-width: 800px) {
+      .principles-card { grid-template-columns: 1fr; padding: 24px; }
+    }
+
+    .principle-item h3 {
+      font-size: 18px;
+      font-weight: 800;
+      color: var(--accent);
+      margin-bottom: 8px;
+    }
+
+    .principle-item p {
+      font-size: 14px;
+      color: var(--text-muted);
+      line-height: 1.6;
+    }
+
+    /* Footer */
+    footer {
+      border-top: 1px solid var(--border);
+      background: #ffffff;
+      padding: 32px 24px;
+      text-align: center;
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    .footer-brand {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 12px;
+      font-weight: 700;
+      color: #0f172a;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Navigation Header -->
+  <header>
+    <a href="/" class="brand">
+      <div class="brand-logo-svg">
+        <svg viewBox="0 0 512 512" width="100%" height="100%">
+          <rect x="36" y="36" width="440" height="440" rx="110" fill="#059669"/>
+          <g transform="translate(256, 256)">
+            <rect x="-34" y="-130" width="68" height="260" rx="34" fill="rgba(255,255,255,0.2)"/>
+            <rect x="-130" y="-34" width="260" height="68" rx="34" fill="rgba(255,255,255,0.2)"/>
+          </g>
+          <path d="M 180 340 L 238 160 C 244 142 268 142 274 160 L 332 340" fill="none" stroke="#ffffff" stroke-width="36" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M 198 270 Q 256 315 314 270" fill="none" stroke="#34d399" stroke-width="32" stroke-linecap="round"/>
+          <circle cx="256" cy="235" r="20" fill="#ffffff"/>
+          <circle cx="256" cy="235" r="11" fill="#059669"/>
+        </svg>
+      </div>
+      <div class="brand-text-wrap">
+        <div class="brand-title">Alheri <span class="brand-arabic">الخير</span></div>
+        <div class="brand-tagline">Offline Edge Clinical Triage</div>
+      </div>
+    </a>
+
+    <div class="nav-actions">
+      <div class="badge-offline">
+        <span class="pulse-dot"></span>
+        100% OFFLINE • ZERO CLOUD TELEMETRY
+      </div>
+      <a href="/triage" class="btn-launch">
+        <span>Open Triage Workspace</span>
+        <span>→</span>
+      </a>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="hero">
+    <div class="hero-badge">
+      <span>🛡️ Designed for Rural PHCs &amp; Low-Connectivity Clinics</span>
+    </div>
+
+    <!-- Official Brand Logo -->
+    <div class="hero-logo-container">
+      <svg viewBox="0 0 512 512" width="120" height="120">
+        <defs>
+          <linearGradient id="heroBgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#059669"/>
+            <stop offset="50%" stop-color="#047857"/>
+            <stop offset="100%" stop-color="#065f46"/>
+          </linearGradient>
+          <linearGradient id="heroGlow" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#34d399"/>
+            <stop offset="100%" stop-color="#10b981"/>
+          </linearGradient>
+          <filter id="heroShadow" x="-10%" y="-10%" width="130%" height="130%">
+            <feDropShadow dx="0" dy="10" stdDeviation="14" flood-color="#064e3b" flood-opacity="0.3"/>
+          </filter>
+        </defs>
+        <rect x="36" y="36" width="440" height="440" rx="110" fill="url(#heroBgGrad)" filter="url(#heroShadow)"/>
+        <circle cx="256" cy="256" r="190" fill="none" stroke="rgba(255, 255, 255, 0.14)" stroke-width="4" stroke-dasharray="8 6"/>
+        <g transform="translate(256, 256)">
+          <rect x="-38" y="-140" width="76" height="280" rx="38" fill="rgba(255, 255, 255, 0.2)"/>
+          <rect x="-140" y="-38" width="280" height="76" rx="38" fill="rgba(255, 255, 255, 0.2)"/>
+        </g>
+        <path d="M 180 340 L 238 160 C 244 142 268 142 274 160 L 332 340" fill="none" stroke="#ffffff" stroke-width="36" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M 198 270 Q 256 315 314 270" fill="none" stroke="url(#heroGlow)" stroke-width="32" stroke-linecap="round"/>
+        <circle cx="256" cy="235" r="22" fill="#ffffff"/>
+        <circle cx="256" cy="235" r="12" fill="#059669"/>
+        <circle cx="160" cy="160" r="10" fill="#a7f3d0" opacity="0.8"/>
+        <circle cx="352" cy="160" r="10" fill="#a7f3d0" opacity="0.8"/>
+      </svg>
+    </div>
+
+    <h1>
+      Human-Scale Clinical AI for <span class="gradient-text">Rural Primary Care</span>
+    </h1>
+
+    <p class="lead">
+      Alheri (الخير) is an edge-deployable, multilingual mental health and primary care triage assistant built for offline clinics, health posts, and Community Health Extension Workers (CHEWs) in Nigeria and the Lake Chad Basin.
+    </p>
+
+    <div class="cta-group">
+      <a href="/triage" class="btn-primary-lg">
+        <span>⚡ Launch Clinical Triage</span>
+        <span>→</span>
+      </a>
+      <a href="#architecture" class="btn-secondary-lg">
+        <span>Explore System Architecture</span>
+      </a>
+    </div>
+
+    <!-- Live System Footprint Monitor -->
+    <div class="system-status-card" id="systemStatusCard">
+      <div class="status-item">
+        <span class="status-label">Inference Engine</span>
+        <span class="status-val" id="valModel">Ollama (gemma2:2b)</span>
+      </div>
+      <div class="status-item">
+        <span class="status-label">Vector Embeddings</span>
+        <span class="status-val" id="valRAG">nomic-embed-text (22 chunks)</span>
+      </div>
+      <div class="status-item">
+        <span class="status-label">Speech-To-Text</span>
+        <span class="status-val">faster-whisper (CPU int8)</span>
+      </div>
+      <div class="status-item">
+        <span class="status-label">RAM Footprint</span>
+        <span class="status-val" id="valRam">Connecting...</span>
+      </div>
+    </div>
+
+    <!-- Clinical Scope Notice -->
+    <div class="scope-banner">
+      <div class="scope-icon">📋</div>
+      <div class="scope-text">
+        <strong>Evaluation Scope:</strong> Alheri evaluates symptoms against WHO mhGAP 2.0 and local Nigerian clinical guidelines (including physical and infectious medical rule-outs, cultural idioms, and crisis protocols, but not restricted to it alone).
+      </div>
+    </div>
+  </section>
+
+  <!-- Core Capabilities Section -->
+  <section class="section" id="capabilities" style="background:#f8fafc; border-top:1px solid var(--border); border-bottom:1px solid var(--border);">
+    <div class="section-header">
+      <h2 class="section-title">Built for Edge Resiliency</h2>
+      <p class="section-sub">Engineered to function with zero external internet access, ensuring clinical continuity in remote PHCs.</p>
+    </div>
+
+    <div class="grid-3">
+      <div class="feature-card">
+        <div class="feature-icon">⚡</div>
+        <div class="feature-title">100% Offline Local Inference</div>
+        <div class="feature-desc">
+          Runs local quantized models (`gemma2:2b` and `nomic-embed-text`) via Ollama. Operates entirely without cellular data, cloud APIs, or telemetry.
+        </div>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">🎙️</div>
+        <div class="feature-title">On-Device Voice Triage</div>
+        <div class="feature-desc">
+          CHEWs and patients can speak directly using the microphone. Audio is transcribed offline with `faster-whisper` on standard CPU hardware with zero cloud transmission.
+        </div>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">📚</div>
+        <div class="feature-title">Grounded Vector RAG</div>
+        <div class="feature-desc">
+          Every triage decision cites verified clinical protocols indexed into local ChromaDB storage, including suicide de-escalation, pesticide poisoning, and fever rule-outs.
+        </div>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">🚨</div>
+        <div class="feature-title">Three-Tiered Triage Protocol</div>
+        <div class="feature-desc">
+          Instantly stratifies patients into Code Red (Emergency Stabilization &amp; Transfer), Code Yellow (Urgent review within 2 hours), and Code Green (Routine care &amp; counseling).
+        </div>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">🔒</div>
+        <div class="feature-title">Sovereign Audit Logging</div>
+        <div class="feature-desc">
+          All clinical triage events are recorded to local append-only JSONL files (`audit_log.jsonl`) on disk for clinical review, with zero telemetry sent outside the facility.
+        </div>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">🩺</div>
+        <div class="feature-title">Mandatory Medical Rule-Outs</div>
+        <div class="feature-desc">
+          Explicitly checks for underlying organic infections (cerebral malaria mRDT, typhoid, hypoglycemia, postpartum psychosis) before psychiatric attribution.
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Multilingual Section -->
+  <section class="section" id="languages">
+    <div class="section-header">
+      <h2 class="section-title">Six Native Regional Languages</h2>
+      <p class="section-sub">Decodes cultural idioms of distress and strictly formulates the triage assessment in the exact same language as the patient statement.</p>
+    </div>
+
+    <div class="lang-grid">
+      <div class="lang-item">
+        <div class="lang-name">
+          <span>English</span>
+          <span class="lang-badge" style="background:#fee2e2; color:#991b1b;">EN</span>
+        </div>
+        <div class="lang-sample">"Patient presenting with acute confusion, paranoia, and refusal to nurse 3 weeks postpartum."</div>
+      </div>
+
+      <div class="lang-item">
+        <div class="lang-name">
+          <span>Hausa (Harshen Hausa)</span>
+          <span class="lang-badge" style="background:#e0e7ff; color:#3730a3;">HA</span>
+        </div>
+        <div class="lang-sample">"Ina jin damuwa kwarai, kaina yana sara min, kuma ina jin zafi a cikin jikina har ba na iya bacci."</div>
+      </div>
+
+      <div class="lang-item">
+        <div class="lang-name">
+          <span>Nigerian Pidgin</span>
+          <span class="lang-badge" style="background:#fef3c7; color:#92400e;">PID</span>
+        </div>
+        <div class="lang-sample">"My body dey pepper me like say fire dey burn inside me, and everything just tire me. Make I just die rest."</div>
+      </div>
+
+      <div class="lang-item">
+        <div class="lang-name">
+          <span>Igbo (Asụsụ Igbo)</span>
+          <span class="lang-badge" style="background:#fce7f3; color:#9d174d;">IG</span>
+        </div>
+        <div class="lang-sample">"Obi na-akụ m aka nke ukwuu, ike adịghị m n'ahụ, ndụ a agwụla m ike. Ka m nwụọ zuo ike."</div>
+      </div>
+
+      <div class="lang-item">
+        <div class="lang-name">
+          <span>Yoruba (Èdè Yorùbá)</span>
+          <span class="lang-badge" style="background:#ffedd5; color:#9a3412;">YO</span>
+        </div>
+        <div class="lang-sample">"Inú mi ń bàjẹ́ kọjá ààlà, orí mi ń fọ́ mi bí ẹni pé ó fẹ́ bẹ́, ayé sì ti sú mi pátápátá."</div>
+      </div>
+
+      <div class="lang-item">
+        <div class="lang-name">
+          <span>العربية (Arabic)</span>
+          <span class="lang-badge" style="background:#dcfce7; color:#166534;">AR</span>
+        </div>
+        <div class="lang-sample" dir="rtl">"أشعر بنار وحرارة داخلية تحرق جسدي، وضيق شديد في صدري وتعبت من الحياة وأريد أن أرتاح."</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Human-Scale Principles Section -->
+  <section class="section" id="architecture" style="background:#f8fafc; border-top:1px solid var(--border);">
+    <div class="section-header">
+      <h2 class="section-title">Human-Scale AI Principles</h2>
+      <p class="section-sub">Why small, specialized models outperform generic cloud LLMs in rural healthcare delivery.</p>
+    </div>
+
+    <div class="principles-card">
+      <div class="principle-item">
+        <h3>1. Small</h3>
+        <p>
+          Runs smoothly on standard consumer hardware (<15W power draw, 8GB RAM). Fits easily on a solar-powered mini PC or clinic laptop without costly cloud GPU servers.
+        </p>
+      </div>
+
+      <div class="principle-item">
+        <h3>2. Intentional</h3>
+        <p>
+          Refuses generic small-talk to focus exclusively on verified clinical workflows: rapid triage, lethal means restriction, and organic medical rule-outs.
+        </p>
+      </div>
+
+      <div class="principle-item">
+        <h3>3. Tailored</h3>
+        <p>
+          Engineered for the cultural and linguistic nuances of Nigerian PHCs, connecting grassroots health workers directly with WHO mhGAP guidelines.
+        </p>
+      </div>
+    </div>
+
+    <div style="text-align:center; margin-top:48px;">
+      <a href="/triage" class="btn-primary-lg">
+        <span>Launch Clinical Triage Workspace</span>
+        <span>→</span>
+      </a>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <div class="footer-brand">
+      <svg viewBox="0 0 512 512" width="24" height="24">
+        <rect x="36" y="36" width="440" height="440" rx="110" fill="#059669"/>
+        <path d="M 180 340 L 238 160 C 244 142 268 142 274 160 L 332 340" fill="none" stroke="#ffffff" stroke-width="40" stroke-linecap="round"/>
+        <path d="M 198 270 Q 256 315 314 270" fill="none" stroke="#34d399" stroke-width="36" stroke-linecap="round"/>
+      </svg>
+      <span>Alheri (الخير) • Clinical Triage Assistant</span>
+    </div>
+    <div>Human-Scale AI for Rural Healthcare • 100% Offline • Zero Telemetry • Federal Neuro-Psychiatric Guidelines &amp; WHO mhGAP 2.0</div>
+  </footer>
+
+  <script>
+    async function checkHealth() {
+      try {
+        const res = await fetch('/health');
+        const data = await res.json();
+        const ramVal = document.getElementById('valRam');
+        if (ramVal && data.system) {
+          ramVal.innerText = `${data.system.ram_used_mb} MB / ${data.system.ram_total_mb} MB (${data.system.ram_percent}%)`;
+        }
+      } catch (err) {
+        const ramVal = document.getElementById('valRam');
+        if (ramVal) ramVal.innerText = 'Offline (Server stopped)';
+      }
+    }
+    checkHealth();
+    setInterval(checkHealth, 8000);
+  </script>
+</body>
+</html>
